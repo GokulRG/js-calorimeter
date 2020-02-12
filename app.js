@@ -17,6 +17,17 @@ const ItemCtrl = (function () {
         return newItem;
     };
 
+
+    const updateItem = (name, calories) => {
+        const itemToUpdate = data.items.filter(item => item.id === ItemCtrl.getCurrentItem().id)[0];
+        if (itemToUpdate) {
+            itemToUpdate.name = name;
+            itemToUpdate.calories = parseInt(calories);
+        }
+        
+        return itemToUpdate;
+    };
+
     const getItemById = (id) => {
         const filteredItems = data.items.filter(item => item.id === id);
         return filteredItems[0] || null;
@@ -65,7 +76,8 @@ const ItemCtrl = (function () {
         getTotalCalories,
         getItemById,
         setCurrentItem,
-        getCurrentItem
+        getCurrentItem,
+        updateItem
     };
 })();
 
@@ -199,8 +211,16 @@ const App = (function (ItemCtrl, UICtrl) {
             
         });
 
+        // Disable submit on enter -- This event common across the DOM, emphasized by the document.addEventListener instead of document.querySelector and then adding Event listener
+        document.addEventListener('keypress', (event) => {
+            if (event.keyCode === 13 || event.which === 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
         document.querySelector(UISelectors.addBtn).addEventListener('click', (event) => {
-            event.preventDefault();
+             event.preventDefault();
 
             const itemToAdd = UICtrl.getItemInput();
 
@@ -225,6 +245,24 @@ const App = (function (ItemCtrl, UICtrl) {
 
             } else {
                UICtrl.addError('Enter valid Item Name and Calorie count');
+            }
+        });
+
+        document.querySelector(UISelectors.updateBtn).addEventListener('click', (event) => {
+            event.preventDefault();
+
+            // Get Item input
+            const input = UICtrl.getItemInput();
+
+            // Update Item
+            const updatedItem = ItemCtrl.updateItem(input.name, input.calories);
+
+            if (updatedItem) {
+                UICtrl.populateItemList(ItemCtrl.getItems());
+                UICtrl.clearErrors();
+                UICtrl.clearEditState();
+            } else {
+                UICtrl.addError('Failed to update selected item. Please try again.');
             }
         });
     };
