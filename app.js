@@ -28,6 +28,18 @@ const ItemCtrl = (function () {
         return itemToUpdate;
     };
 
+    const deleteItem = () => {
+        data.items.forEach((item, index) => {
+            if (item.id === ItemCtrl.getCurrentItem().id) {
+                data.items.splice(index, 1);
+            }
+        });
+    };
+
+    const clearItems = () => {
+        data.items = [];
+    };
+
     const getItemById = (id) => {
         const filteredItems = data.items.filter(item => item.id === id);
         return filteredItems[0] || null;
@@ -50,7 +62,7 @@ const ItemCtrl = (function () {
         // Set total in data structure
         data.totalCalories = totalCalories;
         return totalCalories;
-    }
+    };
 
     // DataStructure -- State
     const data = {
@@ -77,7 +89,9 @@ const ItemCtrl = (function () {
         getItemById,
         setCurrentItem,
         getCurrentItem,
-        updateItem
+        updateItem,
+        deleteItem,
+        clearItems
     };
 })();
 
@@ -93,7 +107,8 @@ const UICtrl = (function () {
         totalCalories: '.total-calories',
         updateBtn: '.update-btn',
         deleteBtn: '.delete-btn',
-        backBtn: '.back-btn'
+        backBtn: '.back-btn',
+        clearBtn: '.clear-btn'
     };
 
     const clearEditState = () => {
@@ -139,7 +154,7 @@ const UICtrl = (function () {
         document.querySelector(UISelectors.errorBlock).textContent = message;
     };
 
-    const setTotalCalories = (totalCalories) => {
+    const setTotalCalories = (totalCalories=ItemCtrl.getTotalCalories()) => {
         document.querySelector(UISelectors.totalCalories).textContent = totalCalories;
     };
 
@@ -155,7 +170,7 @@ const UICtrl = (function () {
         document.querySelector(UISelectors.itemList).style.display = 'block';
     };
 
-    const populateItems = (items) => {
+    const populateItems = (items=ItemCtrl.getItems()) => {
         let html = '';
         items.forEach(function (item) {
             html += `<li class="collection-item" id="item-${item.id}">
@@ -258,13 +273,57 @@ const App = (function (ItemCtrl, UICtrl) {
             const updatedItem = ItemCtrl.updateItem(input.name, input.calories);
 
             if (updatedItem) {
+                // Repopulate the Item List to reflect the changes
                 UICtrl.populateItemList(ItemCtrl.getItems());
-                UICtrl.clearErrors();
+                // Update Total Calories
+                UICtrl.setTotalCalories(ItemCtrl.getTotalCalories());
+                // Clear other errors and inputs
                 UICtrl.clearEditState();
             } else {
                 UICtrl.addError('Failed to update selected item. Please try again.');
             }
         });
+
+        document.querySelector(UISelectors.backBtn).addEventListener('click', (event) => {
+            event.preventDefault();
+
+            //Just clear errors and clear inputs.
+            UICtrl.clearEditState();
+        });
+
+
+        document.querySelector(UISelectors.deleteBtn).addEventListener('click', (event) => {
+            event.preventDefault();
+
+            // Delete Item
+            ItemCtrl.deleteItem();
+
+            // Clear Edit State
+            UICtrl.clearEditState();
+
+            // Recalculate total calories
+            UICtrl.setTotalCalories(ItemCtrl.getTotalCalories());
+
+            // Repopulate Item List
+            UICtrl.populateItemList();
+        });
+
+        document.querySelector(UISelectors.clearBtn).addEventListener('click', (event) => {
+            event.preventDefault();
+
+            // Delete All Items
+            ItemCtrl.clearItems();
+
+            // Clear Edit State
+            UICtrl.clearEditState();
+
+            // Set Total Calories as 0
+            UICtrl.setTotalCalories(0);
+
+            // Repopulate Item List
+            UICtrl.populateItemList();
+        });
+
     };
 
     return {
