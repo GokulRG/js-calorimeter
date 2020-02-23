@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
 //Storage Controller -- For Local Storage
-const StorageCtrl = (function() {
+const StorageCtrl = (function () {
     'use strict';
     const storeItem = (newItem) => {
         let items = [];
@@ -23,7 +23,7 @@ const StorageCtrl = (function() {
             return null;
         } else {
             const items = JSON.parse(localStorage.getItem('items'));
-            const itemIndex = items.findIndex(item => item.id === itemToUpdate.id); 
+            const itemIndex = items.findIndex(item => item.id === itemToUpdate.id);
             if (itemIndex >= 0) {
                 items[itemIndex].name = itemToUpdate.name;
                 items[itemIndex].calories = itemToUpdate.calories;
@@ -50,7 +50,7 @@ const StorageCtrl = (function() {
 
     const clearStorage = () => {
         if (localStorage.getItem('items')) {
-            localStorage.setItem('items',JSON.stringify([]));
+            localStorage.setItem('items', JSON.stringify([]));
         }
     };
 
@@ -79,7 +79,7 @@ const ItemCtrl = (function () {
             newId = data.items[data.items.length - 1].id + 1;
         }
         const newItem = new Item(newId, name, calories);
-        data.items.push(newItem); 
+        data.items.push(newItem);
         StorageCtrl.storeItem(newItem);
         return newItem;
     };
@@ -101,7 +101,7 @@ const ItemCtrl = (function () {
         data.items.forEach((item, index) => {
             if (item.id === ItemCtrl.getCurrentItem().id) {
                 data.items.splice(index, 1);
-                if(StorageCtrl.deleteItem(index)) {
+                if (StorageCtrl.deleteItem(index)) {
                     return true;
                 } else {
                     return false;
@@ -234,7 +234,7 @@ const UICtrl = (function () {
         document.querySelector(UISelectors.errorBlock).textContent = message;
     };
 
-    const setTotalCalories = (totalCalories=ItemCtrl.getTotalCalories()) => {
+    const setTotalCalories = (totalCalories = ItemCtrl.getTotalCalories()) => {
         document.querySelector(UISelectors.totalCalories).textContent = totalCalories;
     };
 
@@ -250,7 +250,7 @@ const UICtrl = (function () {
         document.querySelector(UISelectors.itemList).style.display = 'block';
     };
 
-    const populateItems = (items=ItemCtrl.getItems()) => {
+    const populateItems = (items = ItemCtrl.getItems()) => {
         let html = '';
         items.forEach(function (item) {
             html += `<li class="collection-item" id="item-${item.id}">
@@ -303,7 +303,7 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
                     UICtrl.addItemToForm(ItemCtrl.getCurrentItem());
                 }
             }
-            
+
         });
 
         // Disable submit on enter -- This event common across the DOM, emphasized by the document.addEventListener instead of document.querySelector and then adding Event listener
@@ -315,7 +315,7 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
         });
 
         document.querySelector(UISelectors.addBtn).addEventListener('click', (event) => {
-             event.preventDefault();
+            event.preventDefault();
 
             const itemToAdd = UICtrl.getItemInput();
 
@@ -339,7 +339,7 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
                 }
 
             } else {
-               UICtrl.addError('Enter valid Item Name and Calorie count');
+                UICtrl.addError('Enter valid Item Name and Calorie count');
             }
         });
 
